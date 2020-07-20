@@ -1,0 +1,354 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> 정바다 기말고사 </title>
+    <script language="javascript">
+
+        ///////////////////// 입장 받기 (실습 예제 참고) ////////////////////
+        var xhr = false;
+        if (window.ActiveXObject)
+            xhr = new ActiveXObject("Microsoft.XMLHTTP");
+        else if (window.XMLHttpRequest)
+            xhr = new XMLHttpRequest();
+
+        function getData(dataSource, divID) {
+            if (xhr) {
+                var obj = document.getElementById(divID);
+                xhr.open("GET", dataSource);
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        obj.innerHTML = xhr.responseText;
+
+                    }
+                }
+                xhr.send(null);
+            }
+        }
+
+        ////////////////////// AJAX ////////////////////////////////////
+
+        // 흑돌 서버로 위치 전송
+        function Black_send(a, b) {
+            var xhr = false;
+            if (window.ActiveXObject)
+                xhr = new ActiveXObject("Microsoft.XMLHTTP");
+            else if (window.XMLHttpRequest)
+                xhr = new XMLHttpRequest();
+            if (xhr) {
+                xhr.open("GET", "/Black_send?row=" + a + "&col=" + b);
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4) {
+                        if (xhr.status != 200) {
+                            alert("send ERROR");
+                        }
+                    }
+                }
+                xhr.send(null);
+            }
+        }
+        
+        // 백돌 서버로 위치 전송
+        function White_send(a, b) {
+            var xhr = false;
+            if (window.ActiveXObject)
+                xhr = new ActiveXObject("Microsoft.XMLHTTP");
+            else if (window.XMLHttpRequest)
+                xhr = new XMLHttpRequest();
+            if (xhr) {
+                xhr.open("GET", "/White_send?w_row=" + a + "&w_col=" + b);
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4) {
+                        if (xhr.status != 200) {
+                            alert("send ERROR");
+                        }
+                    }
+                }
+                xhr.send(null);
+            }
+        }
+
+        // 서버에서 흑돌 위치 바디태그로 불러오기
+        function receive_black() {
+            var xhr = false;
+            if (window.ActiveXObject)
+                xhr = new ActiveXObject("Microsoft.XMLHTTP");
+            else if (window.XMLHttpRequest)
+                xhr = new XMLHttpRequest();
+            if (xhr) {
+                xhr.open("GET", "/receive_black");
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        var msg = xhr.responseText;
+                        var obj = JSON.parse(msg);
+                        var x = obj.row;
+                        var y = obj.col;
+                        if (msg != "none") {
+                                document.getElementById("N"+x+"N"+y).innerHTML = "<img src = 'black.jpg' height='40' width='40'>";
+                                cells[x][y] = 1;
+                                turn = 2;
+                                }
+                            }
+                    }
+                }
+                xhr.send(null);
+            }
+
+        // 서버에서 백돌 위치 바디태그로 불러오기
+        function receive_white() {
+                var xhr = false;
+            if (window.ActiveXObject)
+                xhr = new ActiveXObject("Microsoft.XMLHTTP");
+            else if (window.XMLHttpRequest)
+                xhr = new XMLHttpRequest();
+            if (xhr) {
+                xhr.open("GET", "/receive_white");
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        var msg1 = xhr.responseText;
+                        var obj1 = JSON.parse(msg1);
+                        var x1 = obj1.a;
+                        var y1 = obj1.b;
+                        if (msg1 != "none") {
+                                document.getElementById("N"+x1+"N"+y1).innerHTML = "<img src = 'white.jpg' height='40' width='40'>";
+                                cells[x1][y1] = 2;
+                                turn = 1;
+                                }
+                            }
+                    }
+                }
+                xhr.send(null);
+            }
+
+        // 2차원 cells 배열 위치 전송
+        function cells_board(cells) {
+            var xhr = false;
+            if (window.ActiveXObject)
+                xhr = new ActiveXObject("Microsoft.XMLHTTP");
+            else if (window.XMLHttpRequest)
+                xhr = new XMLHttpRequest();
+            if (xhr) {
+                xhr.open("GET", "/cells_board?cells=" + cells);
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4) {
+                        if (xhr.status != 200) {
+                            alert("send ERROR");
+                        }
+                    }
+                }
+                xhr.send(null);
+            }
+        }
+        
+        // Player1 Win
+        function black_full(full) {
+            var xhr = false;
+            if (window.ActiveXObject)
+                xhr = new ActiveXObject("Microsoft.XMLHTTP");
+            else if (window.XMLHttpRequest)
+                xhr = new XMLHttpRequest();
+            if (xhr) {
+                xhr.open("GET", "/black_full?full=" + full);
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4) {
+                        if (xhr.status != 200) {
+                            alert("send ERROR");
+                        }
+                    }
+                }
+                xhr.send(null);
+            }
+        }
+
+        // Player2 Win
+        function white_full(full) {
+            var xhr = false;
+            if (window.ActiveXObject)
+                xhr = new ActiveXObject("Microsoft.XMLHTTP");
+            else if (window.XMLHttpRequest)
+                xhr = new XMLHttpRequest();
+            if (xhr) {
+                xhr.open("GET", "/white_full?full=" + full);
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4) {
+                        if (xhr.status != 200) {
+                            alert("send ERROR");
+                        }
+                    }
+                }
+                xhr.send(null);
+            }
+        }
+
+
+        //////////////////////////////////////////////////////////////////////////
+
+        // 변수 선언
+        var cells = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]];
+        var turn = 1;
+        var i, j;
+        var full = 0;
+        var black = 0;
+        var white = 0;
+
+        // 클릭 이벤트
+        function clickCell(row, col) {
+            if (cells[row][col] > 0) {
+            }
+            else {
+                if (turn == 1) {
+                    result();
+                    document.getElementById("N" + row + "N" + col).innerHTML = "<img src = 'black.jpg' height='40' width='40'>";
+                    cells[row][col] = 1;
+                    cells_board(cells);
+                    Black_send(row, col);
+                    result();
+                    receive_black();
+                }
+                else {
+                    result();
+                    document.getElementById("N" + row + "N" + col).innerHTML = "<img src = 'white.jpg' height='40' width='40'>";
+                    cells[row][col] = 2;
+                    cells_board(cells);
+                    White_send(row,col);
+                    result();
+                    receive_white();
+                }
+            }
+        }
+
+        // 업데이트
+        window.onload = function () {
+                setInterval(receive_black, 350);
+                setInterval(receive_white, 350);
+        }
+
+        // 좌우 검사
+        function ROW() {
+            for (j = 0; j < 15; j++) {
+                for (i = 0; i < 11; i++) {
+                    // 좌우
+                    if (cells[j][i] == 1 && cells[j][i + 1] == 1 && cells[j][i + 2] == 1 && cells[j][i + 3] == 1 && cells[j][i + 4] == 1) {
+                        full = 1;
+                    }
+                    if (cells[j][i] == 2 && cells[j][i + 1] == 2 && cells[j][i + 2] == 2 && cells[j][i + 3] == 2 && cells[j][i + 4] == 2) {
+                        full = 2;
+                    }
+                }
+            }
+        }
+
+        // 상하 검사
+        function COL() {
+            for (j = 0; j < 11; j++) {
+                for (i = 0; i < 15; i++) {
+                    // 상하
+                    if (cells[j][i] == 1 && cells[j + 1][i] == 1 && cells[j + 2][i] == 1 && cells[j + 3][i] == 1 && cells[j + 4][i] == 1) {
+                        full = 1;
+                    }
+                    if (cells[j][i] == 2 && cells[j + 1][i] == 2 && cells[j + 2][i] == 2 && cells[j + 3][i] == 2 && cells[j + 4][i] == 2) {
+                        full = 2;
+                    }
+                }
+            }
+
+        }
+
+        // 왼쪽 대각선 검사
+        function LCROSS() {
+            for (j = 0; j < 11; j++) {
+                for (i = 0; i < 11; i++) {
+                    // 왼쪽 대각선
+                    if (cells[j][i] == 1 && cells[j + 1][i + 1] == 1 && cells[j + 2][i + 2] == 1 && cells[j + 3][i + 3] == 1 && cells[j + 4][i + 4] == 1) {
+                        full = 1;
+                    }
+                    if (cells[j][i] == 2 && cells[j + 1][i + 1] == 2 && cells[j + 2][i + 2] == 2 && cells[j + 3][i + 3] == 2 && cells[j + 4][i + 4] == 2) {
+                        full = 2;
+                    }
+                }
+            }
+        }
+
+        // 오른쪽 대각선 검사
+        function RCROSS() {
+            for (j = 0; j < 11; j++) {
+                for (i = 0; i < 11; i++) {
+                    // 오른쪽 대각선
+                    if (cells[15 - j - 1][i] == 1 && cells[15 - j - 1][i] == 1 && cells[15 - j - 2][i + 1] == 1 && cells[15 - j - 3][i + 2] == 1 && cells[15 - j - 4][i + 3] == 1 && cells[15 - j - 5][i + 4] == 1) {
+                        full = 1;
+                    }
+                    if (cells[15 - j - 1][i] == 2 && cells[15 - j - 1][i] == 2 && cells[15 - j - 2][i + 1] == 2 && cells[15 - j - 3][i + 2] == 2 && cells[15 - j - 4][i + 3] == 2 && cells[15 - j - 5][i + 4] == 2) {
+                        full = 2;
+                    }
+                }
+            }
+        }
+
+        // 게임 결과 출력
+        function result() {
+            COL();
+            ROW();
+            RCROSS();
+            LCROSS();
+            if (full == 1) {
+                alert("Player1 Win.");
+                black++;
+                black_full(full);
+            }
+            if (full == 2) {
+                alert("Player2 Win.");
+                white++;
+                white_full(full);
+            }
+            if (full !== 0) {
+                document.count.BLACK.value = black;
+                document.count.WHITE.value = white;
+                newGame(full);
+            }
+        }
+
+        // 리셋 버튼 및 새 게임
+        function newGame() {
+            for (var i = 0; i < 15; i++) {
+                for (var j = 0; j < 15; j++) {
+                    cells[i][j] = 0;
+                    document.getElementById("N" + i + "N" + j).innerHTML = "<img border='0' height='25' wi40dth='25' >";
+                }
+            }
+            full = 0;
+            turn = 1;
+            clickCell();
+        }
+
+    </script>
+</head>
+
+<body>
+    <H1>1 대 1 오목</H1>
+
+    <form>
+        <input type="button" value="입장하기" onclick="getData('omok_board.txt','targetDiv')">
+    </form>
+
+    <div id="targetDiv">
+        <p> 1 대 1 오목게임을 플레이 하기 위하여  [ 입장하기 ] 버튼을 눌러주세요. </p>
+    </div>
+</body>
+
+</html>
